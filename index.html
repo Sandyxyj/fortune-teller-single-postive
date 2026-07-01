@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI咨询对话 · 学术实验</title>
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --ink:      #0e0e12;
+  --paper:    #f7f5f0;
+  --mist:     #ebebeb;
+  --border:   #d4d0c8;
+  --dim:      #888880;
+  --user-bg:  #0e0e12;
+  --user-txt: #f7f5f0;
+  --ai-bg:    #ffffff;
+  --ai-border:#d4d0c8;
+  --accent:   #2a2a2a;
+  --radius:   14px;
+
+  /* role-specific accent (overridden by JS) */
+  --role-color: #2a2a2a;
+  --role-light: #f0ede8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════ SETUP ═══════════════ */
+#setup {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.s-eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+
+.s-title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.s-subtitle {
+  font-size: 14px;
+  color: var(--dim);
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+.s-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 28px 0;
+}
+
+.s-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
+
+/* topic grid */
+.topic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.topic-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: #fff;
+}
+
+.topic-card:hover { border-color: var(--ink); }
+
+.topic-card.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.topic-card .tc-icon { font-size: 20px; margin-bottom: 6px; }
+.topic-card .tc-label { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.topic-card .tc-desc  { font-size: 11px; color: var(--dim); margin-top: 3px; line-height: 1.4; }
+.topic-card.active .tc-desc { color: #aaa; }
+
+/* concern input */
+.concern-wrap { margin-top: 20px; display: none; }
+
+.concern-wrap textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: #fff;
+  resize: none;
+  height: 96px;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.concern-wrap textarea:focus { border-color: var(--ink); }
+.concern-wrap textarea::placeholder { color: #bbb; }
+
+/* birth row (fortune only) */
+.birth-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+  display: none;
+}
+
+.birth-row select, .birth-row input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.birth-row select:focus, .birth-row input:focus { border-color: var(--ink); }
+
+/* start button */
+.start-btn {
+  margin-top: 28px;
+  width: 100%;
+  padding: 15px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  letter-spacing: 0.3px;
+}
+
+.start-btn:hover { opacity: .85; }
+.start-btn:active { transform: scale(.98); }
+
+.s-notice {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* ═══════════════ CHAT ═══════════════ */
+#chat { display: none; flex-direction: column; height: 100vh; }
+
+/* header */
+.chat-header {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ch-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  background: var(--role-light);
+  border: 1.5px solid var(--border);
+}
+
+.ch-name { font-size: 14px; font-weight: 700; }
+.ch-desc { font-size: 11px; color: var(--dim); margin-top: 1px; }
+
+/* messages */
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.msg { display: flex; gap: 10px; animation: fadeUp .25s ease; }
+.msg.user { flex-direction: row-reverse; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-av {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--role-light);
+}
+
+.msg-av.user-av {
+  background: var(--user-bg);
+  border-color: var(--user-bg);
+  color: var(--user-txt);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bubble {
+  max-width: 75%;
+  padding: 13px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.msg.ai .bubble {
+  background: var(--ai-bg);
+  border: 1.5px solid var(--ai-border);
+  border-top-left-radius: 4px;
+}
+
+.msg.user .bubble {
+  background: var(--user-bg);
+  color: var(--user-txt);
+  border-top-right-radius: 4px;
+}
+
+/* typing */
+.typing-dots {
+  display: flex;
+  gap: 5px;
+  padding: 16px 18px;
+  align-items: center;
+}
+
+.dot {
+  width: 7px; height: 7px;
+  background: var(--dim);
+  border-radius: 50%;
+  animation: bop 1.1s infinite ease-in-out;
+}
+.dot:nth-child(2) { animation-delay: .18s; }
+.dot:nth-child(3) { animation-delay: .36s; }
+@keyframes bop {
+  0%, 80%, 100% { transform: translateY(0); opacity: .5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* followup options */
+.followup-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 75%;
+  margin-left: 40px;
+  animation: fadeUp .25s ease .1s both;
+}
+
+.fup-btn {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s;
+  line-height: 1.4;
+}
+
+.fup-btn:hover { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+.fup-end {
+  border-color: var(--border);
+  color: var(--dim);
+}
+
+.fup-end:hover { border-color: #999; background: #f5f5f5; color: var(--ink); }
+
+/* ═══════════════ SURVEY ═══════════════ */
+#survey-panel {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: #fafaf8;
+  padding: 24px 20px 32px;
+  flex-shrink: 0;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sv-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 20px;
+}
+
+.sv-item { margin-bottom: 22px; }
+.sv-q { font-size: 13px; line-height: 1.6; margin-bottom: 10px; color: var(--ink); }
+
+.sv-scale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sv-edge {
+  font-size: 10px;
+  color: var(--dim);
+  white-space: nowrap;
+  min-width: 52px;
+}
+
+.sv-edge.right { text-align: right; }
+
+.sv-pts {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+  justify-content: center;
+}
+
+.sv-pt {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--dim);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sv-pt:hover { border-color: var(--ink); }
+.sv-pt.picked { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.sv-submit {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  opacity: .35;
+  transition: opacity .15s;
+}
+
+.sv-submit.ready { opacity: 1; }
+
+/* ═══════════════ THANK YOU ═══════════════ */
+#thankyou {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 14px;
+}
+
+.ty-icon { font-size: 44px; margin-bottom: 4px; }
+.ty-h { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.ty-p { font-size: 14px; color: var(--dim); line-height: 1.9; max-width: 340px; }
+
+/* ═══════════════ ERROR BANNER ═══════════════ */
+.err-banner {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #856404;
+  margin: 8px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ SETUP ════════════ -->
+<div id="setup">
+  <div class="s-eyebrow">学术研究 · 问卷实验</div>
+  <div class="s-title">AI 咨询对话体验</div>
+  <div class="s-subtitle">本实验将模拟一次真实的AI对话咨询体验，请按照提示操作。<br>所有数据仅用于学术研究，匿名处理，不会留存个人信息。</div>
+
+  <div class="s-label">请选择您最想咨询的方向</div>
+  <div class="topic-grid">
+    <div class="topic-card" onclick="pickTopic(this,'career','今年的求职 / 职业方向')">
+      <div class="tc-icon">💼</div>
+      <div class="tc-label">职业发展</div>
+      <div class="tc-desc">求职、换工作、职业规划</div>
+    </div>
+    <div class="topic-card" onclick="pickTopic(this,'decision','是否做出某个重要决定')">
+      <div class="tc-icon">🔀</div>
+      <div class="tc-label">重要抉择</div>
+      <div class="tc-desc">考研、创业、辞职等大决定</div>
+    </div>
+    <div class="topic-card" onclick="pickTopic(this,'relationship','当前感情或人际关系状态')">
+      <div class="tc-icon">💬</div>
+      <div class="tc-label">人际关系</div>
+      <div class="tc-desc">感情运势、合作缘分</div>
+    </div>
+    <div class="topic-card" onclick="pickTopic(this,'overall','近期整体运势与注意事项')">
+      <div class="tc-icon">✨</div>
+      <div class="tc-label">整体运势</div>
+      <div class="tc-desc">近期状态、需要关注什么</div>
+    </div>
+  </div>
+
+  <div class="concern-wrap" id="concern-wrap">
+    <div class="s-divider"></div>
+    <div class="s-label">用一两句话描述您目前最想了解的具体问题</div>
+    <textarea id="concern-input"
+      placeholder="例：我今年想换工作，但不确定现在是不是好时机，想知道风险和机会大概在哪里。"></textarea>
+    <div class="birth-row" id="birth-row">
+      <div>
+        <div class="s-label" style="margin-bottom:6px;font-size:10px;">出生年份</div>
+        <input type="number" id="b-year" placeholder="1999" min="1960" max="2008">
+      </div>
+      <div>
+        <div class="s-label" style="margin-bottom:6px;font-size:10px;">出生月份</div>
+        <select id="b-month">
+          <option value="">月份</option>
+          <option>1月</option><option>2月</option><option>3月</option>
+          <option>4月</option><option>5月</option><option>6月</option>
+          <option>7月</option><option>8月</option><option>9月</option>
+          <option>10月</option><option>11月</option><option>12月</option>
+        </select>
+      </div>
+      <div>
+        <div class="s-label" style="margin-bottom:6px;font-size:10px;">出生日期</div>
+        <input type="number" id="b-day" placeholder="15" min="1" max="31">
+      </div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startExperiment()">开始咨询对话 →</button>
+  <div class="s-notice">※ 本页面为学术实验材料。AI 对话由系统自动生成，不构成真实建议。<br>您的使用记录仅用于分析，实验结束后将完整告知实验设计。</div>
+</div>
+
+<!-- ════════════ CHAT ════════════ -->
+<div id="chat">
+  <div class="chat-header">
+    <div class="ch-avatar" id="ch-av">🔮</div>
+    <div>
+      <div class="ch-name" id="ch-name">AI 顾问</div>
+      <div class="ch-desc" id="ch-desc">正在连接…</div>
+    </div>
+  </div>
+
+  <div class="chat-body" id="messages"></div>
+
+  <div id="survey-panel">
+    <div class="sv-title">请回答以下问题（1 = 完全不同意，7 = 完全同意）</div>
+
+    <div class="sv-item">
+      <div class="sv-q">1. 这个AI的分析准确地描述了我目前的实际情况</div>
+      <div class="sv-scale">
+        <span class="sv-edge">完全不同意</span>
+        <div class="sv-pts" id="sq1"></div>
+        <span class="sv-edge right">完全同意</span>
+      </div>
+    </div>
+    <div class="sv-item">
+      <div class="sv-q">2. 这个AI的分析让我感觉它真的理解我的处境</div>
+      <div class="sv-scale">
+        <span class="sv-edge">完全不同意</span>
+        <div class="sv-pts" id="sq2"></div>
+        <span class="sv-edge right">完全同意</span>
+      </div>
+    </div>
+    <div class="sv-item">
+      <div class="sv-q">3. 这个AI的建议对我的实际决策有参考价值</div>
+      <div class="sv-scale">
+        <span class="sv-edge">完全不同意</span>
+        <div class="sv-pts" id="sq3"></div>
+        <span class="sv-edge right">完全同意</span>
+      </div>
+    </div>
+    <div class="sv-item">
+      <div class="sv-q">4. 看完这个AI的建议之后，我认真思考了它是否适用于我</div>
+      <div class="sv-scale">
+        <span class="sv-edge">完全不同意</span>
+        <div class="sv-pts" id="sq4"></div>
+        <span class="sv-edge right">完全同意</span>
+      </div>
+    </div>
+    <div class="sv-item">
+      <div class="sv-q">5. 我打算参考这个建议来指导我接下来的行动</div>
+      <div class="sv-scale">
+        <span class="sv-edge">完全不同意</span>
+        <div class="sv-pts" id="sq5"></div>
+        <span class="sv-edge right">完全同意</span>
+      </div>
+    </div>
+
+    <!-- Manipulation checks -->
+    <div class="sv-item">
+      <div class="sv-q">6. 【操控检验】这个AI更像哪种顾问？</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-role">
+        <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'算命/命理师')">算命/命理师</button>
+        <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'职业规划顾问')">职业规划顾问</button>
+        <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'说不清楚')">说不清楚</button>
+      </div>
+    </div>
+    <div class="sv-item">
+      <div class="sv-q">7. 【操控检验】这个AI的回复整体上让你感觉</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-valence">
+        <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏正面乐观')">偏正面乐观</button>
+        <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏负面谨慎')">偏负面谨慎</button>
+        <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'较为中立')">较为中立</button>
+      </div>
+    </div>
+
+    <button class="sv-submit" id="sv-submit" onclick="submitSurvey()">提交问卷 →</button>
+  </div>
+</div>
+
+<!-- ════════════ THANK YOU ════════════ -->
+<div id="thankyou" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 24px;gap:14px;">
+  <div class="ty-icon">🙏</div>
+  <div class="ty-h">感谢您的参与</div>
+  <div class="ty-p">您的回答已提交。<br><br>
+    <strong>实验告知：</strong>本次对话由AI根据预设的角色提示词自动生成，
+    旨在研究不同类型AI建议对用户决策的影响。您的数据将匿名用于学术分析，
+    不会与任何个人信息关联。如有疑问，请联系研究者。</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// EXPERIMENT CONFIGURATION
+// Researcher changes ONLY this block before distributing each group's link
+// ══════════════════════════════════════════
+const EXP = {
+  // 'fortune'  → AI算命角色（命理师）
+  // 'career'   → AI职业规划师角色
+  role: 'fortune',
+
+  // 'positive' → 整体乐观、建议行动
+  // 'negative' → 整体谨慎、建议等待
+  valence: 'negative',
+
+  // 'single'   → 单轮对话（AI回复后直接进问卷）
+  // 'multi'    → 多轮对话（AI回复后可追问1次）
+  interaction: 'single',
+};
+
+// ── Role profiles ──
+const ROLES = {
+  fortune: {
+    name: '玄机 · AI命理顾问',
+    desc: '八字命理 · 紫微斗数',
+    icon: '🔮',
+    color: '#5b2d8e',
+    light: '#f3eeff',
+    systemPrompt: (topic, concern, birth, valence) => `你是一位精通八字命理、紫微斗数、盲派命理的实战命理师。
+
+分析要求：
+- ${valence === 'positive' ? '在命理允许的范围内，以积极、鼓励的方式呈现分析结果，重点指出有利的时机和运势' : '客观直白地呈现命理分析，指出当前时机的限制和需要注意的风险，建议谨慎等待更好时机'}
+- 凶说凶、吉说吉，不迎合命主，但语气平和
+- 每个判断配完整逻辑链，禁止空话套话
+- 重大判断标注确信度（高/中/低概率）
+- 全程使用命理术语（天干地支、旺衰、流年、驿马星等），体现专业性
+
+用户信息：
+- 咨询方向：${topic}
+- 具体问题：${concern}
+- 出生信息：${birth}
+
+请根据以上信息，给出完整的命理分析和建议。格式：核心结论 → 命理逻辑推导 → 具体行动指引。控制在300字以内，语言精炼。`,
+    greeting: '缘起有因，请问阁下希望咨询哪方面的命理运势？',
+    followups: [
+      '这个时间段具体需要注意什么？',
+      '有没有可以改善运势的方法？',
+      '这个判断大概有多大把握？',
+    ],
+    followupPrompt: (q, history) => `用户追问：「${q}」\n请在命理框架内简短作答（100字以内），承接上文，不重复已说内容。`,
+  },
+  career: {
+    name: '析途 · AI职业顾问',
+    desc: '职业规划 · 能力评估',
+    icon: '📊',
+    color: '#1a4f8a',
+    light: '#eef4ff',
+    systemPrompt: (topic, concern, birth, valence) => `你是一名资深职业规划咨询专家，善于在与用户交谈的过程中挖掘其本人可能忽略的性格特质和潜在弱点。
+
+分析要求：
+- ${valence === 'positive' ? '以积极、赋能的视角分析用户的职业情况，重点指出优势和可把握的机会，给出清晰的行动方向' : '客观评估用户当前职业处境中的风险和挑战，提醒需要注意的障碍，建议审慎决策'}
+- 客观、诚实地反映用户当下所处的职业环境和待解决的问题
+- 每个判断配完整逻辑链，禁止空话套话
+- 结合职业发展规律和市场实际，给出短期和长期的具体行动建议
+
+用户信息：
+- 咨询方向：${topic}
+- 具体问题：${concern}
+
+请根据以上信息，给出专业的职业规划分析和建议。格式：核心结论 → 逻辑推导 → 短期/长期行动建议。控制在300字以内，语言精炼。`,
+    greeting: '您好，请描述您目前面临的职业困惑，我会为您做专业分析。',
+    followups: [
+      '能具体说说短期内应该怎么做吗？',
+      '这个方向有哪些潜在风险需要注意？',
+      '如果暂时没有条件改变，有什么过渡方案？',
+    ],
+    followupPrompt: (q, history) => `用户追问：「${q}」\n请从职业规划视角简短作答（100字以内），承接上文，不重复已说内容。`,
+  },
+};
+
+// ── State ──
+const ST = {
+  topic: '', topicLabel: '',
+  concern: '', birth: '',
+  history: [],
+  surveyAnswers: {},
+  mcAnswers: {},
+  turnCount: 0,
+};
+
+// ══════════════════════════════════════════
+// SETUP
+// ══════════════════════════════════════════
+function pickTopic(el, key, label) {
+  document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  ST.topic = key;
+  ST.topicLabel = label;
+
+  const cw = document.getElementById('concern-wrap');
+  const br = document.getElementById('birth-row');
+  cw.style.display = 'block';
+  br.style.display = EXP.role === 'fortune' ? 'grid' : 'none';
+}
+
+function startExperiment() {
+  const concern = document.getElementById('concern-input').value.trim();
+  if (!ST.topic) { alert('请先选择一个咨询方向。'); return; }
+  if (!concern)  { alert('请简要描述您的具体问题。'); return; }
+
+  if (EXP.role === 'fortune') {
+    const y = document.getElementById('b-year').value.trim();
+    const m = document.getElementById('b-month').value;
+    const d = document.getElementById('b-day').value.trim();
+    if (!y || !m || !d) { alert('命理分析需要您的出生年月日，请填写完整。'); return; }
+    ST.birth = `${y}年${m}${d}日`;
+  } else {
+    ST.birth = '未提供';
+  }
+
+  ST.concern = concern;
+  initChat();
+}
+
+// ══════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════
+function initChat() {
+  const role = ROLES[EXP.role];
+  document.getElementById('setup').style.display = 'none';
+  const chatEl = document.getElementById('chat');
+  chatEl.style.display = 'flex';
+
+  // Apply role color
+  document.documentElement.style.setProperty('--role-color', role.color);
+  document.documentElement.style.setProperty('--role-light', role.light);
+
+  document.getElementById('ch-av').textContent = role.icon;
+  document.getElementById('ch-name').textContent = role.name;
+  document.getElementById('ch-desc').textContent = role.desc;
+
+  // Build survey scales
+  ['sq1','sq2','sq3','sq4','sq5'].forEach(buildScale);
+
+  // Greeting → first AI reply
+  setTimeout(() => {
+    addMsg('ai', role.greeting);
+    const userMsg = buildUserMessage();
+    setTimeout(() => {
+      addMsg('user', userMsg);
+      callAI('first');
+    }, 800);
+  }, 500);
+}
+
+function buildUserMessage() {
+  const topicMap = {
+    career:       '职业发展方向',
+    decision:     '重要决策',
+    relationship: '人际关系',
+    overall:      '整体运势',
+  };
+  const topicStr = topicMap[ST.topic] || ST.topic;
+  let msg = `我想咨询一下${topicStr}方面的问题。${ST.concern}`;
+  if (EXP.role === 'fortune' && ST.birth !== '未提供') {
+    msg += `\n我的生辰是${ST.birth}。`;
+  }
+  return msg;
+}
+
+async function callAI(turn, followupQ = '') {
+  showTyping();
+  const role = ROLES[EXP.role];
+
+  let messages;
+  if (turn === 'first') {
+    const sysPrompt = role.systemPrompt(ST.topicLabel, ST.concern, ST.birth, EXP.valence);
+    const userMsg = buildUserMessage();
+    messages = [{ role: 'user', content: `${sysPrompt}\n\n用户问题：${userMsg}` }];
+  } else {
+    // followup
+    const sysPrompt = role.systemPrompt(ST.topicLabel, ST.concern, ST.birth, EXP.valence);
+    const followupInstruction = role.followupPrompt(followupQ, ST.history);
+    messages = [
+      { role: 'user', content: sysPrompt + '\n\n用户初始问题：' + buildUserMessage() },
+      { role: 'assistant', content: ST.history[0] || '' },
+      { role: 'user', content: followupInstruction },
+    ];
+  }
+
+  try {
+    const res = await fetch('https://dark-union-7dbb.xieyujiesandy.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      removeTyping();
+      addMsg('ai', '⚠️ 连接出现问题，请稍后重试。（' + (data.error.message || '未知错误') + '）');
+      return;
+    }
+
+    const text = data.content?.map(b => b.text || '').join('') || '（无回复）';
+    removeTyping();
+    addMsg('ai', text);
+    ST.history.push(text);
+    ST.turnCount++;
+
+    // Multi: show followup options after first turn; after second turn go to survey
+    if (EXP.interaction === 'multi' && turn === 'first') {
+      setTimeout(showFollowups, 400);
+    } else {
+      setTimeout(showSurvey, 600);
+    }
+
+  } catch (err) {
+    removeTyping();
+    addMsg('ai', '⚠️ 网络连接失败，请检查网络后刷新页面重试。');
+    console.error(err);
+  }
+}
+
+function showFollowups() {
+  const role = ROLES[EXP.role];
+  const wrap = document.createElement('div');
+  wrap.className = 'followup-wrap';
+  wrap.id = 'followup-btns';
+
+  role.followups.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'fup-btn';
+    btn.textContent = q;
+    btn.onclick = () => handleFollowup(q, wrap);
+    wrap.appendChild(btn);
+  });
+
+  const endBtn = document.createElement('button');
+  endBtn.className = 'fup-btn fup-end';
+  endBtn.textContent = '不了，直接完成问卷 →';
+  endBtn.onclick = () => { wrap.remove(); showSurvey(); };
+  wrap.appendChild(endBtn);
+
+  document.getElementById('messages').appendChild(wrap);
+  scrollBottom();
+}
+
+function handleFollowup(q, wrap) {
+  wrap.remove();
+  addMsg('user', q);
+  callAI('followup', q);
+}
+
+function showSurvey() {
+  // 不直接显示问卷，而是先显示一个按钮
+  const existing = document.getElementById('read-done-btn');
+  if (existing) return; // 防止重复出现
+  const wrap = document.createElement('div');
+  wrap.id = 'read-done-btn';
+  wrap.style.cssText = 'margin: 20px 0 0 38px; animation: fadeUp .25s ease;';
+  const btn = document.createElement('button');
+  btn.className = 'fup-btn';
+  btn.style.cssText = 'background: #1e40af; color: white; border-color: #1e40af; font-weight: 600;';
+  btn.textContent = '✅ 我已阅读完毕，开始作答问卷';
+  btn.onclick = function() {
+    wrap.remove();
+    document.getElementById('survey-panel').style.display = 'block';
+    document.getElementById('survey-panel').scrollIntoView({ behavior: 'smooth' });
+  };
+  wrap.appendChild(btn);
+  document.getElementById('messages').appendChild(wrap);
+  scrollBottom();
+}
+// ── Chat helpers ──
+function addMsg(role, text) {
+  const roleObj = ROLES[EXP.role];
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const av = document.createElement('div');
+  av.className = 'msg-av ' + (role === 'ai' ? '' : 'user-av');
+  av.textContent = role === 'ai' ? roleObj.icon : '我';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = mdLite(text);
+
+  div.appendChild(av);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  scrollBottom();
+}
+
+function showTyping() {
+  const roleObj = ROLES[EXP.role];
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typing';
+
+  const av = document.createElement('div');
+  av.className = 'msg-av';
+  av.textContent = roleObj.icon;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble typing-dots';
+  [1,2,3].forEach(() => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    bubble.appendChild(d);
+  });
+
+  div.appendChild(av);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function mdLite(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ══════════════════════════════════════════
+// SURVEY
+// ══════════════════════════════════════════
+function buildScale(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  for (let i = 1; i <= 7; i++) {
+    const pt = document.createElement('div');
+    pt.className = 'sv-pt';
+    pt.textContent = i;
+    pt.onclick = function() {
+      c.querySelectorAll('.sv-pt').forEach(p => p.classList.remove('picked'));
+      this.classList.add('picked');
+      ST.surveyAnswers[id] = i;
+      checkReady();
+    };
+    c.appendChild(pt);
+  }
+}
+
+function pickMC(groupId, el, val) {
+  document.querySelectorAll(`#${groupId} .fup-btn`).forEach(b => {
+    b.style.background = '';
+    b.style.color = '';
+    b.style.borderColor = '';
+  });
+  el.style.background = 'var(--ink)';
+  el.style.color = 'var(--paper)';
+  el.style.borderColor = 'var(--ink)';
+  ST.mcAnswers[groupId] = val;
+  checkReady();
+}
+
+function checkReady() {
+  const scalesOk = Object.keys(ST.surveyAnswers).length >= 5;
+  const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
+  const btn = document.getElementById('sv-submit');
+  if (scalesOk && mcOk) btn.classList.add('ready');
+  else btn.classList.remove('ready');
+}
+
+function submitSurvey() {
+  const scalesOk = Object.keys(ST.surveyAnswers).length >= 5;
+  const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
+  if (!scalesOk || !mcOk) {
+    alert('请完成所有题目后再提交。');
+    return;
+  }
+
+  const payload = {
+    exp_config: EXP,
+    topic: ST.topic,
+    concern_length: ST.concern.length,
+    birth_provided: ST.birth !== '未提供',
+    turns: ST.turnCount,
+    survey: ST.surveyAnswers,
+    manipulation_checks: ST.mcAnswers,
+    timestamp: new Date().toISOString(),
+  };
+  console.log('[EXPERIMENT DATA]', JSON.stringify(payload, null, 2));
+
+  document.getElementById('chat').style.display = 'none';
+  const ty = document.getElementById('thankyou');
+  ty.style.display = 'flex';
+}
+</script>
+</body>
+</html>
