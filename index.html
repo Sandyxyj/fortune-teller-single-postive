@@ -479,7 +479,19 @@ body {
 
   <div class="concern-wrap" id="concern-wrap">
     <div class="s-divider"></div>
-    <div class="s-label">用一两句话描述您目前最想了解的具体问题</div>
+    <div class="s-label">当前情况</div>
+    <textarea id="context-input"
+      placeholder="例：我目前正在找工作，已经投递了几家公司，但还没有拿到满意的offer，最近比较纠结下一步该怎么选择。"></textarea>
+
+    <div class="s-label" style="margin-top:18px;">你的目标</div>
+    <textarea id="goal-input"
+      placeholder="例：我希望找到一份更适合自己、发展空间比较好的工作。"></textarea>
+
+    <div class="s-label" style="margin-top:18px;">主要顾虑</div>
+    <textarea id="worry-input"
+      placeholder="例：我比较担心选择错误，或者新机会看起来很好，但实际发展并不理想。"></textarea>
+
+    <div class="s-label" style="margin-top:18px;">用一两句话描述您目前最想了解的具体问题</div>
     <textarea id="concern-input"
       placeholder="例：我今年想换工作，但不确定现在是不是好时机，想知道风险和机会大概在哪里。"></textarea>
     <div class="birth-row" id="birth-row">
@@ -523,50 +535,160 @@ body {
   <div id="survey-panel">
     <div class="sv-title">请回答以下问题（1 = 完全不同意，7 = 完全同意）</div>
 
-    <div class="sv-item">
-      <div class="sv-q">1. 这个AI的分析准确地描述了我目前的实际情况</div>
-      <div class="sv-scale">
-        <span class="sv-edge">完全不同意</span>
-        <div class="sv-pts" id="sq1"></div>
-        <span class="sv-edge right">完全同意</span>
-      </div>
-    </div>
-    <div class="sv-item">
-      <div class="sv-q">2. 这个AI的分析让我感觉它真的理解我的处境</div>
-      <div class="sv-scale">
-        <span class="sv-edge">完全不同意</span>
-        <div class="sv-pts" id="sq2"></div>
-        <span class="sv-edge right">完全同意</span>
-      </div>
-    </div>
-    <div class="sv-item">
-      <div class="sv-q">3. 这个AI的建议对我的实际决策有参考价值</div>
-      <div class="sv-scale">
-        <span class="sv-edge">完全不同意</span>
-        <div class="sv-pts" id="sq3"></div>
-        <span class="sv-edge right">完全同意</span>
-      </div>
-    </div>
-    <div class="sv-item">
-      <div class="sv-q">4. 看完这个AI的建议之后，我认真思考了它是否适用于我</div>
-      <div class="sv-scale">
-        <span class="sv-edge">完全不同意</span>
-        <div class="sv-pts" id="sq4"></div>
-        <span class="sv-edge right">完全同意</span>
-      </div>
-    </div>
-    <div class="sv-item">
-      <div class="sv-q">5. 我打算参考这个建议来指导我接下来的行动</div>
-      <div class="sv-scale">
-        <span class="sv-edge">完全不同意</span>
-        <div class="sv-pts" id="sq5"></div>
-        <span class="sv-edge right">完全同意</span>
-      </div>
-    </div>
+<!-- AA：AI建议采纳意愿 -->
+<div class="sv-item">
+  <div class="sv-q">1. 我愿意参考AI提供的建议进行决策。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="aa1"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">2. 我愿意采纳AI提出的建议。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="aa2"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">3. 未来遇到类似问题时，我愿意依据AI建议采取行动。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="aa3"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">4. 我愿意将AI建议作为决策的重要参考。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="aa4"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+
+<!-- PA：感知准确性 -->
+<div class="sv-item">
+  <div class="sv-q">5. AI对我当前情况的理解是准确的。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pa1"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">6. AI提供的分析与我的实际情况相符。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pa2"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">7. AI给出的判断符合我的真实处境。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pa3"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">8. 总体而言，我认为AI的分析是准确的。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pa4"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+
+<!-- PU：感知有用性 -->
+<div class="sv-item">
+  <div class="sv-q">9. 该AI建议对我解决当前问题是有帮助的。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pu1"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">10. 该AI建议提升了我做出决策的能力。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pu2"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">11. 该AI建议对我来说是有价值的。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pu3"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">12. 总体而言，AI提供的建议是有用的。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="pu4"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+
+<!-- CE：认知精加工 -->
+<div class="sv-item">
+  <div class="sv-q">13. 我认真思考了AI所提供的建议内容。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="ce1"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">14. 我仔细评估了这些建议是否适用于自己。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="ce2"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">15. 我投入了较多精力理解AI的分析过程。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="ce3"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
+<div class="sv-item">
+  <div class="sv-q">16. 我会进一步思考AI建议背后的原因。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="ce4"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
 
     <!-- Manipulation checks -->
     <div class="sv-item">
-      <div class="sv-q">6. 【操控检验】这个AI更像哪种顾问？</div>
+      <div class="sv-q">17. 【操控检验】这个AI更像哪种顾问？</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-role">
         <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'算命/命理师')">算命/命理师</button>
         <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'职业规划顾问')">职业规划顾问</button>
@@ -574,7 +696,7 @@ body {
       </div>
     </div>
     <div class="sv-item">
-      <div class="sv-q">7. 【操控检验】这个AI的回复整体上让你感觉</div>
+      <div class="sv-q">18. 【操控检验】这个AI的回复整体上让你感觉</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-valence">
         <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏正面乐观')">偏正面乐观</button>
         <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏负面谨慎')">偏负面谨慎</button>
@@ -608,7 +730,7 @@ const EXP = {
 
   // 'positive' → 整体乐观、建议行动
   // 'negative' → 整体谨慎、建议等待
-  valence: 'negative',
+  valence: 'positive',
 
   // 'single'   → 单轮对话（AI回复后直接进问卷）
   // 'multi'    → 多轮对话（AI回复后可追问1次）
@@ -623,21 +745,113 @@ const ROLES = {
     icon: '🔮',
     color: '#5b2d8e',
     light: '#f3eeff',
-    systemPrompt: (topic, concern, birth, valence) => `你是一位精通八字命理、紫微斗数、盲派命理的实战命理师。
+    systemPrompt: (topic, concern, birth, valence) => {
 
-分析要求：
-- ${valence === 'positive' ? '在命理允许的范围内，以积极、鼓励的方式呈现分析结果，重点指出有利的时机和运势' : '客观直白地呈现命理分析，指出当前时机的限制和需要注意的风险，建议谨慎等待更好时机'}
-- 凶说凶、吉说吉，不迎合命主，但语气平和
-- 每个判断配完整逻辑链，禁止空话套话
-- 重大判断标注确信度（高/中/低概率）
-- 全程使用命理术语（天干地支、旺衰、流年、驿马星等），体现专业性
+let topicInstruction="";
 
-用户信息：
-- 咨询方向：${topic}
-- 具体问题：${concern}
-- 出生信息：${birth}
+switch(topic){
 
-请根据以上信息，给出完整的命理分析和建议。格式：核心结论 → 命理逻辑推导 → 具体行动指引。控制在300字以内，语言精炼。`,
+case "今年的求职 / 职业方向":
+
+topicInstruction=`
+重点围绕：
+- 当前事业运势
+- 求职机会
+- 是否适合跳槽
+- 未来半年职业走势
+- 有利月份与阻碍
+`;
+break;
+
+case "是否做出某个重要决定":
+
+topicInstruction=`
+重点围绕：
+- 当前是否适合行动
+- 做与不做的不同趋势
+- 是否容易成功
+- 存在什么阻碍
+- 建议等待还是行动
+`;
+break;
+
+case "当前感情或人际关系状态":
+
+topicInstruction=`
+重点围绕：
+- 当前人际运
+- 贵人与小人
+- 感情关系走势
+- 容易出现的问题
+- 如何改善关系
+`;
+break;
+
+case "近期整体运势与注意事项":
+
+topicInstruction=`
+重点围绕：
+- 整体运势
+- 财运
+- 健康
+- 人际
+- 最近需要注意什么
+`;
+break;
+
+default:
+
+topicInstruction="围绕用户问题进行综合命理分析。";
+
+}
+
+return `
+
+你是一位精通八字命理、紫微斗数、盲派命理的资深命理师。
+
+${valence==="positive"
+?"整体基调积极乐观，但必须符合命理逻辑，不可刻意迎合用户。"
+:"整体基调谨慎客观，应指出风险和限制，但避免制造恐慌。"}
+
+要求：
+
+每一个判断必须给出命理依据。
+
+禁止空话。
+
+禁止心理安慰。
+
+咨询方向：
+
+${topic}
+
+分析重点：
+
+${topicInstruction}
+
+用户问题：
+
+${concern}
+
+出生信息：
+
+${birth}
+
+输出格式：
+
+【核心结论】
+
+【命理依据】
+
+【未来趋势】
+
+【行动建议】
+
+控制300字以内。
+
+`;
+
+},
     greeting: '缘起有因，请问阁下希望咨询哪方面的命理运势？',
     followups: [
       '这个时间段具体需要注意什么？',
@@ -678,7 +892,7 @@ const ROLES = {
 // ── State ──
 const ST = {
   topic: '', topicLabel: '',
-  concern: '', birth: '',
+  concern: '', context: '', goal: '', worry: '', birth: '',
   history: [],
   surveyAnswers: {},
   mcAnswers: {},
@@ -698,11 +912,47 @@ function pickTopic(el, key, label) {
   const br = document.getElementById('birth-row');
   cw.style.display = 'block';
   br.style.display = EXP.role === 'fortune' ? 'grid' : 'none';
+
+  const contextInput = document.getElementById('context-input');
+  const goalInput = document.getElementById('goal-input');
+  const worryInput = document.getElementById('worry-input');
+
+  const contextExamples = {
+    career: '例：我目前正在找工作，已经投递了几家公司，但还没有拿到满意的offer，最近比较纠结下一步该怎么选择。',
+    decision: '例：我最近正在考虑是否辞职，目前的工作比较稳定，但发展空间有限，同时我已经有了一个新的机会。',
+    relationship: '例：我和一位关系比较重要的人最近产生了一些矛盾，之前相处一直不错，但最近因为沟通方式的问题出现了几次冲突。',
+    overall: '例：我最近正在经历毕业、求职等变化，整体生活节奏比较快，也比较担心接下来一段时间的发展情况。'
+  };
+
+  const goalExamples = {
+    career: '例：我希望找到一份更适合自己、发展空间比较好的工作。',
+    decision: '例：我希望判断这个决定是否值得做，以及什么情况下采取行动会更合适。',
+    relationship: '例：我希望了解这段关系接下来可能如何发展，以及我应该怎样处理。',
+    overall: '例：我希望了解近期整体状态，以及接下来一段时间更值得关注的方面。'
+  };
+
+  const worryExamples = {
+    career: '例：我比较担心选择错误，或者新机会看起来很好，但实际发展并不理想。',
+    decision: '例：我比较担心做错选择，之后会承担较大的损失或后悔。',
+    relationship: '例：我比较担心关系进一步恶化，也不知道自己现在的处理方式是否合适。',
+    overall: '例：我比较担心近期会遇到一些意料之外的变化，影响原来的计划。'
+  };
+
+  contextInput.placeholder = contextExamples[key] || contextExamples.overall;
+  goalInput.placeholder = goalExamples[key] || goalExamples.overall;
+  worryInput.placeholder = worryExamples[key] || worryExamples.overall;
 }
 
 function startExperiment() {
+  const context = document.getElementById('context-input').value.trim();
+  const goal = document.getElementById('goal-input').value.trim();
+  const worry = document.getElementById('worry-input').value.trim();
   const concern = document.getElementById('concern-input').value.trim();
+
   if (!ST.topic) { alert('请先选择一个咨询方向。'); return; }
+  if (!context) { alert('请补充您目前的情况。'); return; }
+  if (!goal) { alert('请补充您的目标。'); return; }
+  if (!worry) { alert('请补充您目前的主要顾虑。'); return; }
   if (!concern)  { alert('请简要描述您的具体问题。'); return; }
 
   if (EXP.role === 'fortune') {
@@ -715,6 +965,9 @@ function startExperiment() {
     ST.birth = '未提供';
   }
 
+  ST.context = context;
+  ST.goal = goal;
+  ST.worry = worry;
   ST.concern = concern;
   initChat();
 }
@@ -737,7 +990,12 @@ function initChat() {
   document.getElementById('ch-desc').textContent = role.desc;
 
   // Build survey scales
-  ['sq1','sq2','sq3','sq4','sq5'].forEach(buildScale);
+  [
+  'aa1','aa2','aa3','aa4',
+  'pa1','pa2','pa3','pa4',
+  'pu1','pu2','pu3','pu4',
+  'ce1','ce2','ce3','ce4'
+].forEach(buildScale);
 
   // Greeting → first AI reply
   setTimeout(() => {
@@ -758,7 +1016,11 @@ function buildUserMessage() {
     overall:      '整体运势',
   };
   const topicStr = topicMap[ST.topic] || ST.topic;
-  let msg = `我想咨询一下${topicStr}方面的问题。${ST.concern}`;
+  let msg = `我想咨询一下${topicStr}方面的问题。`;
+  msg += `\n当前情况：${ST.context}`;
+  msg += `\n我的目标：${ST.goal}`;
+  msg += `\n我的主要顾虑：${ST.worry}`;
+  msg += `\n具体问题：${ST.concern}`;
   if (EXP.role === 'fortune' && ST.birth !== '未提供') {
     msg += `\n我的生辰是${ST.birth}。`;
   }
@@ -968,15 +1230,15 @@ function pickMC(groupId, el, val) {
 }
 
 function checkReady() {
-  const scalesOk = Object.keys(ST.surveyAnswers).length >= 5;
+  const scalesOk = Object.keys(ST.surveyAnswers).length >= 16;
   const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
   const btn = document.getElementById('sv-submit');
   if (scalesOk && mcOk) btn.classList.add('ready');
   else btn.classList.remove('ready');
 }
 
-function submitSurvey() {
-  const scalesOk = Object.keys(ST.surveyAnswers).length >= 5;
+async function submitSurvey() {
+const scalesOk = Object.keys(ST.surveyAnswers).length >= 16;
   const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
   if (!scalesOk || !mcOk) {
     alert('请完成所有题目后再提交。');
@@ -987,6 +1249,9 @@ function submitSurvey() {
     exp_config: EXP,
     topic: ST.topic,
     concern_length: ST.concern.length,
+    context_length: ST.context.length,
+    goal_length: ST.goal.length,
+    worry_length: ST.worry.length,
     birth_provided: ST.birth !== '未提供',
     turns: ST.turnCount,
     survey: ST.surveyAnswers,
@@ -994,7 +1259,38 @@ function submitSurvey() {
     timestamp: new Date().toISOString(),
   };
   console.log('[EXPERIMENT DATA]', JSON.stringify(payload, null, 2));
+  try {
+    await fetch('https://dark-union-7dbb.xieyujiesandy.workers.dev', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type: 'save',
+data: {
+  group_name: `${EXP.role}_${EXP.valence}_${EXP.interaction}`,
+  topic: ST.topic,
+  topicLabel: ST.topicLabel,
 
+  // 三项背景信息
+  context: ST.context,
+  goal: ST.goal,
+  worry: ST.worry,
+
+  concern: ST.concern,
+  birth: ST.birth,
+  history: ST.history,
+          surveyAnswers: ST.surveyAnswers,
+          mcAnswers: ST.mcAnswers,
+          timestamp: new Date().toISOString()
+        }
+      })
+    });
+
+    console.log('DATA SENT TO D1');
+  } catch (err) {
+    console.error('D1 SAVE ERROR:', err);
+  }
   document.getElementById('chat').style.display = 'none';
   const ty = document.getElementById('thankyou');
   ty.style.display = 'flex';
