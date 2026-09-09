@@ -1048,7 +1048,7 @@ async function callAI(turn, followupQ = '') {
   }
 
   try {
-    const res = await fetch('https://dark-union-7dbb.xieyujiesandy.workers.dev', {
+    const res = await fetch('https://experiment.gripe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1260,7 +1260,7 @@ const scalesOk = Object.keys(ST.surveyAnswers).length >= 16;
   };
   console.log('[EXPERIMENT DATA]', JSON.stringify(payload, null, 2));
   try {
-    await fetch('https://dark-union-7dbb.xieyujiesandy.workers.dev', {
+    await fetch('https://experiment.gripe', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
