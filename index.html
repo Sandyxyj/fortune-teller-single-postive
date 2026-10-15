@@ -651,7 +651,7 @@ body {
 
 <!-- CE：认知精加工 -->
 <div class="sv-item">
-  <div class="sv-q">13. 我在思考AI所提供的建议时投入了较多的认知精力。</div>
+  <div class="sv-q">13. 我认真思考了AI所提供的建议内容。</div>
   <div class="sv-scale">
     <span class="sv-edge">完全不同意</span>
     <div class="sv-pts" id="ce1"></div>
@@ -660,7 +660,7 @@ body {
 </div>
 
 <div class="sv-item">
-  <div class="sv-q">14. 我尽力思考AI所提供的建议内容。</div>
+  <div class="sv-q">14. 我仔细评估了这些建议是否适用于自己。</div>
   <div class="sv-scale">
     <span class="sv-edge">完全不同意</span>
     <div class="sv-pts" id="ce2"></div>
@@ -669,7 +669,7 @@ body {
 </div>
 
 <div class="sv-item">
-  <div class="sv-q">15. 我会进一步思考AI所提供建议的合理性。</div>
+  <div class="sv-q">15. 我投入了较多精力理解AI的分析过程。</div>
   <div class="sv-scale">
     <span class="sv-edge">完全不同意</span>
     <div class="sv-pts" id="ce3"></div>
@@ -677,9 +677,18 @@ body {
   </div>
 </div>
 
+<div class="sv-item">
+  <div class="sv-q">16. 我会进一步思考AI建议背后的原因。</div>
+  <div class="sv-scale">
+    <span class="sv-edge">完全不同意</span>
+    <div class="sv-pts" id="ce4"></div>
+    <span class="sv-edge right">完全同意</span>
+  </div>
+</div>
+
     <!-- Manipulation checks -->
     <div class="sv-item">
-      <div class="sv-q">16. 【操控检验】我认为刚才和我互动的AI更像是</div>
+      <div class="sv-q">17. 【操控检验】这个AI更像哪种顾问？</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-role">
         <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'命理分析型AI')">命理分析型AI</button>
         <button class="fup-btn" style="flex:1;min-width:120px;" onclick="pickMC('mc-role',this,'专业建议型AI')">专业建议型AI</button>
@@ -687,7 +696,7 @@ body {
       </div>
     </div>
     <div class="sv-item">
-      <div class="sv-q">17. 【操控检验】这个AI的回复整体上让你感觉</div>
+      <div class="sv-q">18. 【操控检验】这个AI的回复整体上让你感觉</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;" id="mc-valence">
         <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏正面乐观')">偏正面乐观</button>
         <button class="fup-btn" style="flex:1;min-width:100px;" onclick="pickMC('mc-valence',this,'偏负面谨慎')">偏负面谨慎</button>
@@ -799,18 +808,9 @@ return `
 
 你是一位精通八字命理、紫微斗数、盲派命理的资深命理师。
 
-
-${valence === "positive"
-  ? "整体基调积极乐观，但必须符合命理逻辑，不可刻意迎合用户。重点指出有利因素、潜在机会和可采取的行动。"
-  : `整体基调必须明确偏负面、谨慎和风险导向。请重点分析用户当前处境中不利的条件、潜在风险、现实阻碍及可能出现的问题。具体要求：
-- 至少明确指出2项与用户实际情况相关的风险、困难、不利因素或潜在阻碍，并解释其可能产生的影响。
-- 【核心结论】必须首先传达谨慎信号，明确指出当前不宜盲目乐观的原因。
-- 【未来趋势】应重点说明可能遇到的阻碍、进展不顺或需要警惕的情况，不得以积极机会作为主要结论。
-- 【行动建议】应以谨慎决策、进一步观察、充分准备或暂缓行动为主，具体建议需与前述风险相对应。
-- 可以提及有利因素，但只能作为次要或附条件的信息，不得用乐观预期抵消主要风险。
-- 不得在结尾使用“总体来看问题不大”“只要努力就会有好结果”等明显偏正面的总结。
-- 保持现实、克制和可信，不得使用恐吓、灾难化或绝对化表达。`}
-}
+${valence==="positive"
+?"整体基调积极乐观，但必须符合命理逻辑，不可刻意迎合用户。"
+:"整体基调谨慎客观，应指出风险和限制，但避免制造恐慌。"}
 
 要求：
 
@@ -993,7 +993,7 @@ function initChat() {
   'aa1','aa2','aa3','aa4',
   'pa1','pa2','pa3','pa4',
   'pu1','pu2','pu3','pu4',
-  'ce1','ce2','ce3'
+  'ce1','ce2','ce3','ce4'
 ].forEach(buildScale);
 
   // Greeting → first AI reply
@@ -1229,7 +1229,7 @@ function pickMC(groupId, el, val) {
 }
 
 function checkReady() {
-  const scalesOk = Object.keys(ST.surveyAnswers).length >= 15;
+  const scalesOk = Object.keys(ST.surveyAnswers).length >= 16;
   const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
   const btn = document.getElementById('sv-submit');
   if (scalesOk && mcOk) btn.classList.add('ready');
@@ -1237,7 +1237,7 @@ function checkReady() {
 }
 
 async function submitSurvey() {
-const scalesOk = Object.keys(ST.surveyAnswers).length >= 15;
+const scalesOk = Object.keys(ST.surveyAnswers).length >= 16;
   const mcOk = ST.mcAnswers['mc-role'] && ST.mcAnswers['mc-valence'];
   if (!scalesOk || !mcOk) {
     alert('请完成所有题目后再提交。');
